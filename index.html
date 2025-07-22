@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>موقع ألعاب تفاعلي متكامل</title>
 <style>
-  /* ... (نفس التنسيق اللي أرسلته، يمكنك تضمينه كاملاً هنا) ... */
+  @import url('https://fonts.googleapis.com/css2?family=Cairo&display=swap');
   body {
     font-family: 'Cairo', sans-serif;
     background: linear-gradient(135deg, #1e3c72, #2a5298);
@@ -70,12 +70,114 @@
   button#exitBtn:hover {
     background: #1e8449;
   }
-  /* ... بقية التنسيقات ... */
+  #socialLinks {
+    margin-top: 30px;
+    font-size: 18px;
+    color: #ddd;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  #socialLinks a {
+    color: #f39c12;
+    text-decoration: none;
+    font-weight: 900;
+    margin: 0 18px;
+  }
+  #socialLinks a:hover {
+    text-decoration: underline;
+  }
+  img.game-img {
+    max-width: 280px;
+    border-radius: 14px;
+    box-shadow: 0 0 20px #f39c12;
+    margin-bottom: 15px;
+  }
+  input[type="text"], input[type="number"] {
+    padding: 10px;
+    font-size: 20px;
+    border-radius: 12px;
+    border: none;
+    width: 70%;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+  button.actionBtn {
+    background: #f39c12;
+    color: #222;
+    font-weight: 900;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 30px;
+    margin: 6px;
+    font-size: 18px;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgb(243 156 18 / 0.7);
+    transition: background 0.3s ease, transform 0.2s ease;
+  }
+  button.actionBtn:hover:not(:disabled) {
+    background: #d35400;
+    transform: scale(1.1);
+    box-shadow: 0 8px 20px rgb(211 84 0 / 0.85);
+  }
+  button.actionBtn:disabled {
+    background: #bbb;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  #result {
+    font-size: 22px;
+    margin: 15px 0 10px;
+    min-height: 30px;
+    font-weight: 700;
+  }
+  #balloonContainer div {
+    display: inline-block;
+    margin: 6px;
+    padding: 20px;
+    font-size: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 12px #f39c12;
+    user-select: none;
+    transition: transform 0.3s ease;
+  }
+  #balloonContainer div:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 25px 6px #f39c12;
+  }
+  .questionBtn {
+    background: #3498db;
+    color: white;
+    font-weight: 700;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 24px;
+    margin: 6px;
+    cursor: pointer;
+    font-size: 18px;
+    box-shadow: 0 4px 10px rgba(52, 152, 219, 0.7);
+    transition: background 0.3s ease;
+  }
+  .questionBtn:hover {
+    background: #2980b9;
+  }
+  .selectedAnswer {
+    background: #27ae60 !important;
+    box-shadow: 0 4px 14px rgba(39,174,96,0.9);
+    color: white !important;
+  }
+  .disabledBtn {
+    cursor: not-allowed;
+    background: #aaa !important;
+    box-shadow: none !important;
+  }
 </style>
 </head>
 <body>
 
 <h1>موقع ألعاب تفاعلي متكامل</h1>
+
+<button onclick="alert('تم الضغط!')">جرب اضغطني</button>
 
 <div id="menu">
   <button onclick="startGame('guessCharacter')">خمن الشخصية</button>
@@ -97,41 +199,49 @@
   Insta : f.11aha
 </div>
 
-<script>
-  // دالة startGame - تستقبل اسم اللعبة وتعرض رسالة (يمكنك تعديلها لاحقًا لتشغيل اللعبة)
-  function startGame(gameName) {
-    const gameArea = document.getElementById('gameArea');
-    const menu = document.getElementById('menu');
-    const exitBtn = document.getElementById('exitBtn');
+<audio id="clickSound" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg" preload="auto"></audio>
+<audio id="popSound" src="https://actions.google.com/sounds/v1/cartoon/balloon_pop.ogg" preload="auto"></audio>
+<audio id="correctSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg" preload="auto"></audio>
+<audio id="wrongSound" src="https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg" preload="auto"></audio>
 
+<script>
+  // بيانات الألعاب (مختصر)
+  const characters = [
+    {name: 'سوبرمان', img: 'https://upload.wikimedia.org/wikipedia/en/3/35/Supermanflying.png'},
+    {name: 'باتمان', img: 'https://upload.wikimedia.org/wikipedia/en/8/86/Batman_DC_Comics.png'},
+    {name: 'سبايدر مان', img: 'https://upload.wikimedia.org/wikipedia/en/0/0c/Spiderman50.jpg'},
+    {name: 'أيرون مان', img: 'https://upload.wikimedia.org/wikipedia/en/e/e0/Iron_Man_bleeding_edge.jpg'}
+  ];
+
+  const menu = document.getElementById('menu');
+  const gameArea = document.getElementById('gameArea');
+  const exitBtn = document.getElementById('exitBtn');
+
+  // متغيرات عامة
+  let currentGame = null;
+
+  // دالة بدء اللعبة (تجريبية)
+  function startGame(gameName) {
+    currentGame = gameName;
     menu.style.display = 'none';
     exitBtn.style.display = 'inline-block';
-
-    // عرض نص تجريبي للعبة المختارة
-    gameArea.innerHTML = `<h2>بدأت اللعبة: ${gameName}</h2><p>هنا يمكنك بناء لعبة ${gameName}!</p>`;
+    gameArea.innerHTML = `<h2>اللعبة المختارة: ${gameName}</h2><p>سيتم تطوير هذه اللعبة قريباً.</p>`;
   }
 
-  // دالة خروج من اللعبة للعودة إلى القائمة
+  // دالة الخروج من اللعبة والرجوع للقائمة
   function exitGame() {
-    const gameArea = document.getElementById('gameArea');
-    const menu = document.getElementById('menu');
-    const exitBtn = document.getElementById('exitBtn');
-
-    gameArea.innerHTML = '';
+    currentGame = null;
     menu.style.display = 'block';
     exitBtn.style.display = 'none';
+    gameArea.innerHTML = '';
   }
 
-  // دالة عرض لوحة الصدارة (كمثال)
+  // دالة عرض لوحة الصدارة (تجريبية)
   function showLeaderboard() {
-    const gameArea = document.getElementById('gameArea');
-    const menu = document.getElementById('menu');
-    const exitBtn = document.getElementById('exitBtn');
-
+    currentGame = 'leaderboard';
     menu.style.display = 'none';
     exitBtn.style.display = 'inline-block';
-
-    gameArea.innerHTML = '<h2>لوحة الصدارة</h2><p>لا توجد نتائج حاليا.</p>';
+    gameArea.innerHTML = '<h2>لوحة الصدارة (قيد التطوير)</h2>';
   }
 </script>
 
