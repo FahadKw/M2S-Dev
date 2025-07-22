@@ -7,11 +7,12 @@
 <style>
   body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #121212;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
     color: #eee;
     margin: 0;
     padding: 10px 20px;
     text-align: center;
+    min-height: 100vh;
   }
   h1 {
     margin-bottom: 20px;
@@ -26,20 +27,26 @@
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    background: #6200ee;
-    color: white;
-    transition: background 0.3s;
+    background: #f39c12;
+    color: #222;
+    font-weight: bold;
+    transition: background 0.3s, transform 0.2s;
   }
   #menu button:hover {
-    background: #3700b3;
+    background: #d35400;
+    transform: scale(1.05);
   }
   #gameArea {
     margin-top: 20px;
     min-height: 400px;
+    background: rgba(255 255 255 / 0.1);
+    border-radius: 12px;
+    padding: 15px;
   }
   button.backBtn {
     margin-top: 20px;
-    background: #bb86fc;
+    background: #27ae60;
+    color: white;
   }
   #leaderboard {
     margin-top: 20px;
@@ -47,26 +54,24 @@
     padding: 10px;
     border-radius: 8px;
   }
-  audio {
-    display: none;
+  #socialLinks {
+    margin-top: 25px;
+    font-size: 16px;
+    color: #ddd;
+  }
+  #socialLinks a {
+    color: #f39c12;
+    text-decoration: none;
+    font-weight: bold;
+    margin: 0 15px;
+  }
+  #socialLinks a:hover {
+    text-decoration: underline;
   }
   #footer {
     margin-top: 40px;
     font-size: 14px;
-    color: #999;
-  }
-  #socialLinks {
-    margin-top: 20px;
-  }
-  #socialLinks a {
-    color: #bb86fc;
-    text-decoration: none;
-    font-weight: bold;
-    margin: 0 15px;
-    font-size: 16px;
-  }
-  #socialLinks a:hover {
-    text-decoration: underline;
+    color: #ccc;
   }
 </style>
 </head>
@@ -86,29 +91,24 @@
 </div>
 
 <div id="socialLinks">
-  <a href="https://discord.gg/bmRZjf5fts" target="_blank" rel="noopener">دخول ديسكورد</a>
-  <a href="https://instagram.com/f.11aha" target="_blank" rel="noopener">الانستا f.11aha</a>
+  <a href="https://discord.gg/bmRZjf5fts" target="_blank" rel="noopener">Discord</a> |  
+  Insta : f.11aha
 </div>
 
 <div id="gameArea"></div>
 
-<audio id="bgMusic" loop src="https://cdn.pixabay.com/download/audio/2022/03/22/audio_fa2543d3d7.mp3?filename=relaxing-music-1-6416.mp3"></audio>
-<button onclick="toggleMusic()" style="margin-top:15px;">تشغيل/إيقاف الموسيقى 🎵</button>
-
-<div id="footer">Dev By : M2S</div>
+<audio id="clickSound" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg" preload="auto"></audio>
 
 <script>
   const gameArea = document.getElementById('gameArea');
   const menu = document.getElementById('menu');
-  const bgMusic = document.getElementById('bgMusic');
+  const clickSound = document.getElementById('clickSound');
   let leaderboardData = JSON.parse(localStorage.getItem('leaderboard') || '[]');
 
-  function toggleMusic() {
-    if(bgMusic.paused) {
-      bgMusic.play();
-    } else {
-      bgMusic.pause();
-    }
+  function playClickSound() {
+    clickSound.currentTime = 0;
+    clickSound.volume = 0.3;
+    clickSound.play();
   }
 
   function saveScore(game, score) {
@@ -120,18 +120,18 @@
 
   function showLeaderboard() {
     menu.style.display = 'none';
-    gameArea.innerHTML = '<h2>لوحة الصدارة - أعلى 20 نتيجة</h2>';
+    let html = '<h2>لوحة الصدارة - أعلى 20 نتيجة</h2>';
     if(leaderboardData.length === 0) {
-      gameArea.innerHTML += '<p>لا توجد نتائج بعد</p>';
+      html += '<p>لا توجد نتائج بعد</p>';
     } else {
-      let html = '<ol style="text-align:right;">';
+      html += '<ol style="text-align:right;">';
       leaderboardData.forEach(item => {
         html += `<li><b>${item.game}</b>: ${item.score} - <small>${item.date}</small></li>`;
       });
       html += '</ol>';
-      gameArea.innerHTML += html;
     }
-    gameArea.innerHTML += '<button class="backBtn" onclick="backToMenu()">عودة للقائمة</button>';
+    html += '<button class="backBtn" onclick="backToMenu()">عودة للقائمة</button>';
+    gameArea.innerHTML = html;
   }
 
   function backToMenu() {
@@ -153,16 +153,9 @@
     }
   }
 
-  // باقي الألعاب والكود يبقى كما هو ...
+  // --- الألعاب ---
 
-  // إضافة دالة صوت ماريو للأزرار (كمثال بسيط)
-  function playClickSound() {
-    const audio = new Audio('https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg');
-    audio.volume = 0.3;
-    audio.play();
-  }
-
-  // مثال على تعديل دالة clickSpeedGame لاستخدام صوت النقر
+  // لعبة أكثر ضغط مع صوت النقر
   function clickSpeedGame() {
     let count = 0;
     let timeLeft = 5;
@@ -194,6 +187,55 @@
       }
     }, 1000);
   }
+
+  // لعبة فجر البالونات بلون معين
+  function popBalloonGame() {
+    const colors = ['red', 'blue', 'green', 'yellow'];
+    let targetColor = colors[Math.floor(Math.random() * colors.length)];
+    let popped = 0;
+    let total = 10;
+    gameArea.innerHTML = `<h2>فجر البالونات الحمراء فقط! اللون الهدف: <span style="color:red;">${targetColor}</span></h2>
+      <div id="balloonContainer" style="display:flex; flex-wrap: wrap; justify-content:center; gap:15px; margin-top:20px;"></div>
+      <p>البالونات المفجرة: <span id="poppedCount">0</span> / ${total}</p>
+      <button class="backBtn" onclick="backToMenu()">عودة للقائمة</button>
+    `;
+
+    const container = document.getElementById('balloonContainer');
+    const poppedCount = document.getElementById('poppedCount');
+
+    for(let i=0; i<total; i++) {
+      let color = colors[Math.floor(Math.random() * colors.length)];
+      let balloon = document.createElement('div');
+      balloon.style.width = '60px';
+      balloon.style.height = '80px';
+      balloon.style.backgroundColor = color;
+      balloon.style.borderRadius = '50% 50% 50% 50% / 60% 60% 40% 40%';
+      balloon.style.cursor = 'pointer';
+      balloon.style.boxShadow = '0 0 10px rgba(0,0,0,0.3)';
+      balloon.title = color;
+      balloon.onclick = () => {
+        if(color === targetColor) {
+          popped++;
+          poppedCount.textContent = popped;
+          balloon.style.visibility = 'hidden';
+          playClickSound();
+          if(popped === total) {
+            alert('مبروك! فزت في اللعبة!');
+            saveScore('فجر البالونات', total);
+          }
+        } else {
+          alert('خسرت! اختر البالون باللون الصحيح فقط.');
+          saveScore('فجر البالونات', popped);
+          backToMenu();
+        }
+      };
+      container.appendChild(balloon);
+    }
+  }
+
+  // ألعاب أخرى يمكنك إضافتها بنفس الطريقة (خمن الشخصية، سؤال وجواب، خمن الرسمة، خمن الدولة، خمن الأكلة)
+
+  // ألعاب بسيطة جاهزة للتعديل والإضافة لاحقًا
 
 </script>
 
