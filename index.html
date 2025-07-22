@@ -54,7 +54,7 @@
     overflow-y: auto;
     min-height: 300px;
   }
-  button.backBtn, button#exitBtn {
+  button#exitBtn {
     margin-top: 25px;
     background: #27ae60;
     color: white;
@@ -65,8 +65,9 @@
     box-shadow: 0 4px 12px rgb(39 174 96 / 0.7);
     transition: background 0.3s ease;
     cursor: pointer;
+    display: none;
   }
-  button.backBtn:hover, button#exitBtn:hover {
+  button#exitBtn:hover {
     background: #1e8449;
   }
   #socialLinks {
@@ -189,7 +190,7 @@
 
 <div id="gameArea"></div>
 
-<button id="exitBtn" style="display:none;">خروج إلى القائمة</button>
+<button id="exitBtn">خروج إلى القائمة</button>
 
 <div id="socialLinks">
   <a href="https://discord.gg/bmRZjf5fts" target="_blank" rel="noopener">Discord</a> |  
@@ -284,4 +285,135 @@
     menu.style.display = 'none';
     exitBtn.style.display = 'inline-block';
     askPlayerName(() => {
-     
+      let html = '<h2>لوحة الصدارة - أعلى 20 نتيجة</h2>';
+      if(leaderboardData.length === 0) {
+        html += '<p>لا توجد نتائج بعد</p>';
+      } else {
+        const topPlayer = leaderboardData[0];
+        html += `<p style="font-weight:bold; font-size:20px; margin-bottom:15px;">🔥 أعلى لاعب: ${topPlayer.player} — ${topPlayer.score} نقاط 🔥</p>`;
+        html += '<ol style="text-align:right; max-height: 260px; overflow-y: auto; padding-left: 20px;">';
+        leaderboardData.forEach(entry => {
+          html += `<li><strong>${entry.player}</strong> - ${entry.score} - <small>${entry.game}</small></li>`;
+        });
+        html += '</ol>';
+      }
+      gameArea.innerHTML = html;
+    });
+  }
+
+  // بداية اللعبة حسب الاسم
+  function startGame(name) {
+    currentGame = name;
+    menu.style.display = 'none';
+    exitBtn.style.display = 'inline-block';
+
+    if(name === 'guessCharacter') playGuessGame(characters, 'خمن الشخصية');
+    else if(name === 'guessCountry') playGuessGame(countries, 'خمن الدولة');
+    else if(name === 'guessFood') playGuessGame(foods, 'خمن الأكلة');
+    else if(name === 'guessDrawing') playGuessGame(drawings, 'خمن الرسمة');
+    else if(name === 'clickSpeed') playClickSpeedGame();
+    else if(name === 'popBalloon') playPopBalloonGame();
+    else if(name === 'quiz') playQuizGame();
+  }
+
+  // زر خروج للقائمة
+  exitBtn.onclick = () => {
+    currentGame = null;
+    menu.style.display = 'block';
+    gameArea.innerHTML = '';
+    exitBtn.style.display = 'none';
+  };
+
+  // ألعاب خمن (صورة + كتابة جواب + تحقق)
+  function playGuessGame(itemsArray, title) {
+    let index = 0;
+    gameArea.innerHTML = `
+      <h2>${title}</h2>
+      <img id="guessImg" class="game-img" src="${itemsArray[0].img}" alt="" />
+      <br />
+      <input type="text" id="userInput" placeholder="اكتب إجابتك هنا" autocomplete="off" />
+      <br />
+      <button id="checkBtn" class="actionBtn">تحقق</button>
+      <div id="result"></div>
+      <button id="nextBtn" class="actionBtn" style="display:none;">التالي</button>
+    `;
+
+    const guessImg = document.getElementById('guessImg');
+    const userInput = document.getElementById('userInput');
+    const checkBtn = document.getElementById('checkBtn');
+    const resultDiv = document.getElementById('result');
+    const nextBtn = document.getElementById('nextBtn');
+
+    function loadItem(i) {
+      index = i;
+      userInput.value = '';
+      resultDiv.textContent = '';
+      nextBtn.style.display = 'none';
+      guessImg.src = itemsArray[i].img;
+      guessImg.alt = itemsArray[i].name;
+      userInput.focus();
+    }
+
+    checkBtn.onclick = () => {
+      const answer = userInput.value.trim().toLowerCase();
+      const correct = itemsArray[index].name.toLowerCase();
+      if(answer === '') {
+        alert('اكتب إجابتك أولاً');
+        return;
+      }
+      if(answer === correct) {
+        resultDiv.style.color = '#27ae60';
+        resultDiv.textContent = 'صح! 👍';
+        correctSound.play();
+      } else {
+        resultDiv.style.color = '#e74c3c';
+        resultDiv.textContent = `خطأ! الإجابة الصحيحة: ${itemsArray[index].name}`;
+        wrongSound.play();
+      }
+      nextBtn.style.display = 'inline-block';
+    };
+
+    nextBtn.onclick = () => {
+      if(index +1 >= itemsArray.length) {
+        alert('خلصت كل العناصر! راح يرجع للبداية.');
+        saveScore(title, index+1);
+        index = 0;
+      } else {
+        index++;
+      }
+      loadItem(index);
+    };
+
+    loadItem(index);
+  }
+
+  // لعبة أكثر ضغط (قياس سرعة الضغط خلال 10 ثواني)
+  function playClickSpeedGame() {
+    let clicks = 0;
+    let timeLeft = 10;
+    let interval = null;
+
+    gameArea.innerHTML = `
+      <h2>اختبر سرعة ضغطتك على الزر خلال 10 ثواني!</h2>
+      <button id="clickBtn" class="actionBtn">اضغط هنا!</button>
+      <div id="timer">الوقت المتبقي: 10</div>
+      <div id="result"></div>
+    `;
+
+    const clickBtn = document.getElementById('clickBtn');
+    const timerDiv = document.getElementById('timer');
+    const resultDiv = document.getElementById('result');
+
+    function endGame() {
+      clickBtn.disabled = true;
+      resultDiv.textContent = `انتهى الوقت! عدد الضغطات: ${clicks}`;
+      saveScore('أكثر ضغط', clicks);
+      clearInterval(interval);
+    }
+
+    clickBtn.onclick = () => {
+      clicks++;
+      clickSound.play();
+    };
+
+    interval = setInterval(() =>
