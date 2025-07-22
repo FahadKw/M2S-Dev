@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>موقع ألعاب تفاعلي متكامل</title>
+<style>
+  /* نفس CSS الموجود عندك هنا */
+  /* اختصرته هنا لعدم التكرار، لكن خليك تستخدم CSS كامل من كودك */
+</style>
+</head>
+<body>
+
+<h1>موقع ألعاب تفاعلي متكامل</h1>
+
+<div id="menu">
+  <button onclick="loadGame('guessCharacter.js')">خمن الشخصية</button>
+  <button onclick="loadGame('guessCountry.js')">خمن الدولة</button>
+  <button onclick="loadGame('guessFood.js')">خمن الأكلة</button>
+  <button onclick="loadGame('guessDrawing.js')">خمن الرسمة</button>
+  <button onclick="loadGame('clickSpeed.js')">أكثر ضغط</button>
+  <button onclick="loadGame('popBalloon.js')">فجر البالونات</button>
+  <button onclick="loadGame('quiz.js')">سؤال وجواب ثنائي</button>
+</div>
+
+<div id="gameArea"></div>
+<button id="exitBtn" style="display:none;">خروج إلى القائمة</button>
+
+<script>
+  const menu = document.getElementById('menu');
+  const gameArea = document.getElementById('gameArea');
+  const exitBtn = document.getElementById('exitBtn');
+
+  let currentScript = null;
+
+  function loadGame(scriptName) {
+    // إزالة السكربت السابق إذا كان موجود
+    if(currentScript) {
+      currentScript.remove();
+      currentScript = null;
+    }
+    menu.style.display = 'none';
+    exitBtn.style.display = 'inline-block';
+    gameArea.innerHTML = ''; // مسح اللعبة السابقة
+
+    // تحميل السكربت الجديد
+    currentScript = document.createElement('script');
+    currentScript.src = scriptName;
+    document.body.appendChild(currentScript);
+  }
+
+  exitBtn.onclick = () => {
+    if(currentScript) {
+      currentScript.remove();
+      currentScript = null;
+    }
+    gameArea.innerHTML = '';
+    menu.style.display = 'block';
+    exitBtn.style.display = 'none';
+  };
+</script>
+
+</body>
+</html>
