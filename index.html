@@ -1,175 +1,287 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Game Center</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #121212;
-      color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .container {
-      max-width: 800px;
-      width: 100%;
-      padding: 20px;
-      text-align: center;
-    }
-    h1 {
-      font-size: 40px;
-      margin-bottom: 30px;
-    }
-    .menu, .game-section {
-      display: none;
-    }
-    .menu.active, .game-section.active {
-      display: block;
-    }
-    button {
-      background-color: #00cc99;
-      border: none;
-      padding: 15px 30px;
-      margin: 10px;
-      font-size: 18px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-    button:hover {
-      background-color: #00b386;
-    }
-    .footer {
-      margin-top: 40px;
-      font-size: 18px;
-    }
-    .exit-btn {
-      background-color: red;
-      font-size: 20px;
-      margin-top: 40px;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>موقع ألعاب تفاعلي متكامل</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cairo&display=swap');
+  body {
+    font-family: 'Cairo', sans-serif;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    color: #eee;
+    margin: 0;
+    padding: 15px 25px 50px;
+    text-align: center;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  h1, h2 {
+    font-weight: 900;
+    margin-bottom: 20px;
+  }
+  #menu {
+    margin-bottom: 20px;
+    flex-shrink: 0;
+  }
+  #menu button {
+    margin: 8px;
+    padding: 14px 28px;
+    font-size: 20px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    background: #f39c12;
+    color: #222;
+    font-weight: 900;
+    transition: background 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 8px rgb(243 156 18 / 0.5);
+  }
+  #menu button:hover {
+    background: #d35400;
+    transform: scale(1.08);
+    box-shadow: 0 6px 14px rgb(211 84 0 / 0.8);
+  }
+  #gameArea {
+    margin-top: 10px;
+    flex-grow: 1;
+    background: rgba(255 255 255 / 0.12);
+    border-radius: 18px;
+    padding: 25px;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.7);
+    font-size: 18px;
+    overflow-y: auto;
+    min-height: 300px;
+  }
+  button.backBtn, button#exitBtn {
+    margin-top: 25px;
+    background: #27ae60;
+    color: white;
+    font-weight: 700;
+    font-size: 20px;
+    padding: 14px 36px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgb(39 174 96 / 0.7);
+    transition: background 0.3s ease;
+    cursor: pointer;
+  }
+  button.backBtn:hover, button#exitBtn:hover {
+    background: #1e8449;
+  }
+  #socialLinks {
+    margin-top: 30px;
+    font-size: 18px;
+    color: #ddd;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  #socialLinks a {
+    color: #f39c12;
+    text-decoration: none;
+    font-weight: 900;
+    margin: 0 18px;
+  }
+  #socialLinks a:hover {
+    text-decoration: underline;
+  }
+  img.game-img {
+    max-width: 280px;
+    border-radius: 14px;
+    box-shadow: 0 0 20px #f39c12;
+    margin-bottom: 15px;
+  }
+  input[type="text"], input[type="number"] {
+    padding: 10px;
+    font-size: 20px;
+    border-radius: 12px;
+    border: none;
+    width: 70%;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+  button.actionBtn {
+    background: #f39c12;
+    color: #222;
+    font-weight: 900;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 30px;
+    margin: 6px;
+    font-size: 18px;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgb(243 156 18 / 0.7);
+    transition: background 0.3s ease, transform 0.2s ease;
+  }
+  button.actionBtn:hover:not(:disabled) {
+    background: #d35400;
+    transform: scale(1.1);
+    box-shadow: 0 8px 20px rgb(211 84 0 / 0.85);
+  }
+  button.actionBtn:disabled {
+    background: #bbb;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  #result {
+    font-size: 22px;
+    margin: 15px 0 10px;
+    min-height: 30px;
+    font-weight: 700;
+  }
+  #balloonContainer div {
+    display: inline-block;
+    margin: 6px;
+    padding: 20px;
+    font-size: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 12px #f39c12;
+    user-select: none;
+    transition: transform 0.3s ease;
+  }
+  #balloonContainer div:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 25px 6px #f39c12;
+  }
+  .questionBtn {
+    background: #3498db;
+    color: white;
+    font-weight: 700;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 24px;
+    margin: 6px;
+    cursor: pointer;
+    font-size: 18px;
+    box-shadow: 0 4px 10px rgba(52, 152, 219, 0.7);
+    transition: background 0.3s ease;
+  }
+  .questionBtn:hover {
+    background: #2980b9;
+  }
+  .selectedAnswer {
+    background: #27ae60 !important;
+    box-shadow: 0 4px 14px rgba(39,174,96,0.9);
+    color: white !important;
+  }
+  .disabledBtn {
+    cursor: not-allowed;
+    background: #aaa !important;
+    box-shadow: none !important;
+  }
+</style>
 </head>
 <body>
-  <div class="container">
-    <h1>🎮 Game Center</h1>
-    <div id="mainMenu" class="menu active">
-      <button onclick="showGame('foodGame')">🍔 Guess the Food</button>
-      <button onclick="showGame('countryGame')">🌍 Guess the Country</button>
-      <button onclick="showGame('characterGame')">👤 Guess the Character</button>
-      <button onclick="showGame('drawGuessGame')">🎨 Guess the Drawing</button>
-      <button onclick="showGame('clickGame')">🔥 Click War</button>
-      <button onclick="showGame('balloonGame')">🎈 Balloon Pop</button>
-      <button onclick="showGame('qaGame')">❓ Q&A Friends</button>
-    </div>
 
-    <div id="foodGame" class="game-section">
-      <h2>🍔 Guess the Food</h2>
-      <p>Place your food image and let players guess!</p>
-      <img src="images/food1.jpg" width="200">
-      <p>What food is this?</p>
-      <input type="text" placeholder="Type your guess">
-      <br>
-      <button onclick="backToMenu()">⬅️ Back</button>
-    </div>
+<h1>موقع ألعاب تفاعلي متكامل</h1>
 
-    <div id="countryGame" class="game-section">
-      <h2>🌍 Guess the Country</h2>
-      <img src="images/country1.jpg" width="200">
-      <p>Which country is this?</p>
-      <input type="text" placeholder="Type your guess">
-      <br>
-      <button onclick="backToMenu()">⬅️ Back</button>
-    </div>
+<div id="menu">
+  <button onclick="startGame('guessCharacter')">خمن الشخصية</button>
+  <button onclick="startGame('guessCountry')">خمن الدولة</button>
+  <button onclick="startGame('guessFood')">خمن الأكلة</button>
+  <button onclick="startGame('guessDrawing')">خمن الرسمة</button>
+  <button onclick="startGame('clickSpeed')">أكثر ضغط</button>
+  <button onclick="startGame('popBalloon')">فجر البالونات</button>
+  <button onclick="startGame('quiz')">سؤال وجواب ثنائي</button>
+  <button onclick="showLeaderboard()">لوحة الصدارة</button>
+</div>
 
-    <div id="characterGame" class="game-section">
-      <h2>👤 Guess the Character</h2>
-      <img src="images/character1.jpg" width="200">
-      <p>Who is this character?</p>
-      <input type="text" placeholder="Type your guess">
-      <br>
-      <button onclick="backToMenu()">⬅️ Back</button>
-    </div>
+<div id="gameArea"></div>
 
-    <div id="drawGuessGame" class="game-section">
-      <h2>🎨 Guess the Drawing</h2>
-      <img src="images/draw1.jpg" width="200">
-      <p>What is drawn here?</p>
-      <input type="text" placeholder="Type your guess">
-      <br>
-      <button onclick="backToMenu()">⬅️ Back</button>
-    </div>
+<button id="exitBtn" style="display:none;">خروج إلى القائمة</button>
 
-    <div id="clickGame" class="game-section">
-      <h2>🔥 Click War</h2>
-      <p>Click as fast as you can!</p>
-      <button onclick="incrementClick()">Click Me!</button>
-      <p id="clickCount">0</p>
-      <p id="topPlayer">Top: N/A</p>
-      <br>
-      <button onclick="backToMenu()">⬅️ Back</button>
-    </div>
+<div id="socialLinks">
+  <a href="https://discord.gg/bmRZjf5fts" target="_blank" rel="noopener">Discord</a> |  
+  Insta : f.11aha
+</div>
 
-    <div id="balloonGame" class="game-section">
-      <h2>🎈 Balloon Pop (coming soon)</h2>
-      <p>Pop the balloons before time runs out!</p>
-      <button onclick="backToMenu()">⬅️ Back</button>
-    </div>
+<audio id="clickSound" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg" preload="auto"></audio>
+<audio id="popSound" src="https://actions.google.com/sounds/v1/cartoon/balloon_pop.ogg" preload="auto"></audio>
+<audio id="correctSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg" preload="auto"></audio>
+<audio id="wrongSound" src="https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg" preload="auto"></audio>
 
-    <div id="qaGame" class="game-section">
-      <h2>❓ Q&A Between Friends</h2>
-      <p>Player 1 asks question. Player 2 answers!</p>
-      <input type="text" id="question" placeholder="Ask a question">
-      <br>
-      <input type="text" id="answer" placeholder="Your friend's answer">
-      <br>
-      <button onclick="checkQA()">Check Answer</button>
-      <p id="qaResult"></p>
-      <button onclick="backToMenu()">⬅️ Back</button>
-    </div>
+<script>
+  // بيانات الألعاب
+  const characters = [
+    {name: 'سوبرمان', img: 'https://upload.wikimedia.org/wikipedia/en/3/35/Supermanflying.png'},
+    {name: 'باتمان', img: 'https://upload.wikimedia.org/wikipedia/en/8/86/Batman_DC_Comics.png'},
+    {name: 'سبايدر مان', img: 'https://upload.wikimedia.org/wikipedia/en/0/0c/Spiderman50.jpg'},
+    {name: 'أيرون مان', img: 'https://upload.wikimedia.org/wikipedia/en/e/e0/Iron_Man_bleeding_edge.jpg'}
+  ];
+  const countries = [
+    {name: 'السعودية', img: 'https://upload.wikimedia.org/wikipedia/commons/0/0d/Flag_of_Saudi_Arabia.svg'},
+    {name: 'مصر', img: 'https://upload.wikimedia.org/wikipedia/commons/f/fe/Flag_of_Egypt.svg'},
+    {name: 'اليابان', img: 'https://upload.wikimedia.org/wikipedia/en/9/9e/Flag_of_Japan.svg'},
+    {name: 'فرنسا', img: 'https://upload.wikimedia.org/wikipedia/en/c/c3/Flag_of_France.svg'}
+  ];
+  const foods = [
+    {name: 'بيتزا', img: 'https://upload.wikimedia.org/wikipedia/commons/d/d3/Supreme_pizza.jpg'},
+    {name: 'كبسة', img: 'https://upload.wikimedia.org/wikipedia/commons/5/58/Kabsa.jpg'},
+    {name: 'برجر', img: 'https://upload.wikimedia.org/wikipedia/commons/0/0b/RedDot_Burger.jpg'},
+    {name: 'فلافل', img: 'https://upload.wikimedia.org/wikipedia/commons/3/3f/Falafel_with_tahini_and_salad.jpg'}
+  ];
+  const drawings = [
+    {name: 'شجرة', img: 'https://i.imgur.com/3vQdXNP.png'},
+    {name: 'بيت', img: 'https://i.imgur.com/n6s2aGz.png'},
+    {name: 'سيارة', img: 'https://i.imgur.com/HV7fXWy.png'}
+  ];
+  const quizQuestions = [
+    {question: 'ما هي عاصمة مصر؟', answers: ['القاهرة', 'الإسكندرية', 'الأسكندرية', 'أسوان'], correct: 0},
+    {question: 'كم عدد ألوان قوس قزح؟', answers: ['6', '7', '8', '5'], correct: 1},
+    {question: 'ما هي لغة البرمجة المستخدمة في صفحات الويب؟', answers: ['بايثون', 'جافاسكريبت', 'جافا', 'سي شارب'], correct: 1},
+    {question: 'ما هو أكبر محيط في العالم؟', answers: ['الهندي', 'الأطلسي', 'الهادئ', 'المتجمد الشمالي'], correct: 2}
+  ];
 
-    <button class="exit-btn" onclick="exitSite()">🚪 Exit</button>
-    <div class="footer">Insta: <strong>f.11aha</strong></div>
-  </div>
+  // عناصر HTML
+  const menu = document.getElementById('menu');
+  const gameArea = document.getElementById('gameArea');
+  const exitBtn = document.getElementById('exitBtn');
+  const clickSound = document.getElementById('clickSound');
+  const popSound = document.getElementById('popSound');
+  const correctSound = document.getElementById('correctSound');
+  const wrongSound = document.getElementById('wrongSound');
 
-  <script>
-    function showGame(id) {
-      document.querySelectorAll('.menu, .game-section').forEach(e => e.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
+  // متغيرات عامة
+  let currentGame = null;
+  let leaderboardData = JSON.parse(localStorage.getItem('leaderboard') || '[]');
+  let playerName = localStorage.getItem('playerName') || '';
+
+  // تسجيل اسم اللاعب (للوحة الصدارة)
+  function askPlayerName(callback) {
+    if(playerName && playerName.trim() !== '') {
+      callback();
+      return;
     }
-    function backToMenu() {
-      document.querySelectorAll('.game-section').forEach(e => e.classList.remove('active'));
-      document.getElementById('mainMenu').classList.add('active');
-    }
-    function exitSite() {
-      alert('Thanks for playing!');
-    }
-
-    let clickCount = 0;
-    let topPlayer = { name: 'N/A', score: 0 };
-
-    function incrementClick() {
-      clickCount++;
-      document.getElementById('clickCount').innerText = clickCount;
-      if (clickCount > topPlayer.score) {
-        topPlayer = { name: 'Player1', score: clickCount };
-        document.getElementById('topPlayer').innerText = `Top: ${topPlayer.name} - ${topPlayer.score}`;
-      }
-    }
-
-    function checkQA() {
-      const q = document.getElementById('question').value;
-      const a = document.getElementById('answer').value;
-      if (q && a) {
-        document.getElementById('qaResult').innerText = `Q: ${q}\nA: ${a}`;
+    let name = prompt('اكتب اسمك عشان نسجل لك في لوحة الصدارة:');
+    if(name) {
+      name = name.trim();
+      if(name !== '') {
+        playerName = name;
+        localStorage.setItem('playerName', playerName);
+        callback();
       } else {
-        document.getElementById('qaResult').innerText = 'Please fill both fields.';
+        alert('لازم تكتب اسم!');
+        askPlayerName(callback);
       }
+    } else {
+      alert('لازم تكتب اسم!');
+      askPlayerName(callback);
     }
-  </script>
-</body>
-</html>
+  }
+
+  // حفظ النقاط
+  function saveScore(game, score) {
+    leaderboardData.push({game, score, player: playerName, date: new Date().toLocaleString()});
+    leaderboardData.sort((a,b) => b.score - a.score);
+    if(leaderboardData.length > 20) leaderboardData.pop();
+    localStorage.setItem('leaderboard', JSON.stringify(leaderboardData));
+  }
+
+  // عرض لوحة الصدارة
+  function showLeaderboard() {
+    currentGame = null;
+    menu.style.display = 'none';
+    exitBtn.style.display = 'inline-block';
+    askPlayerName(() => {
+     
